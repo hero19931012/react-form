@@ -1,17 +1,19 @@
 import styled from 'styled-components';
+import Color from './Constants'
 
 const OutterWrapper = styled.main`
-padding: 0 40px;
+  background-color: ${Color.background};
+  padding: 100px 40px 64px 40px;
 `
 
 const FormBody = styled.div`
-  margin: 100px auto 64px auto;
+  margin: 0 auto;
   max-width: 645px;
   min-height: calc(100vh - 164px - 69px);
   box-shadow: 1.8px 2.4px 5px 0 rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
-  border-top: #fad312 solid 8px;
-  background-color: #ffffff;
+  border-top: ${Color.highlight} solid 8px;
+  background-color: ${Color.white};
 `
 
 const FormWrapper = styled.form`
@@ -32,6 +34,10 @@ const FormInfo = styled.h4`
     }
 `
 
+const FormNotice = styled.p`
+  color: ${Color.textWarning};
+`
+
 const FormHeader = () => {
   return (
     <div className="header">
@@ -41,7 +47,7 @@ const FormHeader = () => {
       <FormInfo>
         <p>活動日期：2020/12/10 ~ 2020/12/11</p>
         <p>活動地點：台北市大安區新生南路二段1號</p>
-        <p className='notice'>*必填</p>
+        <FormNotice>*必填</FormNotice>
       </FormInfo>
     </div>
   );
@@ -59,7 +65,7 @@ const QuestionTitle = styled.h3`
 
   &:after {
     content: "*";
-    color: #e74149;
+    color: ${Color.textWarning};
     font-size: 20px;
   }
 `
@@ -67,11 +73,11 @@ const QuestionTitle = styled.h3`
 const QuestionErrorMessage = styled.h4`
   margin: 0px;
   font-size: 14px;
-  color: #e74149;
+  color: ${Color.textWarning};
 `
 
 const Input = styled.input`
-  border: #d0d0d0 solid 1px;
+  border: ${Color.inputBorder} solid 1px;
   width: 50%;
   padding: 8px;
   @media (max-width: 768px) {
@@ -86,9 +92,10 @@ const RadioOptions = styled.div`
 
 const Radio = ({ options, handleInput }) => {
   const handleRadioClicked = (e) => {
-    handleInput(e, 'registerType')}
+    handleInput(e, 'registerType')
+  }
   return (
-    <RadioOptions onChange={ handleRadioClicked }>
+    <RadioOptions onChange={handleRadioClicked}>
       {
         options.map((option, index) => {
           return (
@@ -128,7 +135,7 @@ const Question = ({ question, handleInput }) => {
 
 const SubmitButton = styled.button`
   margin-bottom: 21px;
-  background: #fad312;
+  background: ${Color.highlight};
   border: none;
   border-radius: 3px;
   height: 40px;
