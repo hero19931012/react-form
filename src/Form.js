@@ -1,5 +1,9 @@
+import { useContext, createContext } from 'react';
 import styled from 'styled-components';
 import Color from './Constants'
+
+const HandlerContext = createContext();
+
 
 const OutterWrapper = styled.main`
   background-color: ${Color.background};
@@ -70,9 +74,7 @@ const QuestionTitle = styled.h3`
   }
 `
 
-const QuestionErrorMessage = styled.h4`
-  margin: 0px;
-  font-size: 14px;
+const ErrorMessage = styled.div`
   color: ${Color.textWarning};
 `
 
@@ -90,16 +92,17 @@ const RadioOptions = styled.div`
   flex-direction: column;
 `
 
-const Radio = ({ options, handleInput }) => {
-  const handleRadioClicked = (e) => {
-    handleInput(e, 'registerType')
-  }
+const Radio = ({ options }) => {
+  const [, handleRadioClick, indexOfAnswer] = useContext(HandlerContext)
+
   return (
-    <RadioOptions onChange={handleRadioClicked}>
+    <RadioOptions onChange={(e) => {
+      handleRadioClick(e, indexOfAnswer)
+    }}>
       {
         options.map((option, index) => {
           return (
-            <label key={index} >
+            <label key={index}>
               <input type="radio" name="registerType" />
               { option.content}
             </label>
@@ -110,24 +113,22 @@ const Radio = ({ options, handleInput }) => {
   )
 }
 
-const Question = ({ question, handleInput }) => {
-
+const Question = ({ question, answers }) => {
+  const [handleInputChange, , index, errorMessages] = useContext(HandlerContext)
   return (
     <QuestionWrapper>
       <QuestionTitle>
         {question.title}
       </QuestionTitle>
       {
-        question.input.inputType === 'input' ? <Input placeholder={question.input.placeholder} onChange={handleInput} value={question.value} /> : ''
+        question.input.inputType === 'input' ? <Input placeholder={question.input.placeholder} onChange={(e) => {
+          handleInputChange(e, index)
+        }} value={answers[index].value} /> : ''
       }
       {
-        question.input.inputType === 'radio' ? <Radio options={question.input.options} handleInput={(e) => {
-          handleInput(e, question.title)
-        }} /> : ''
+        question.input.inputType === 'radio' ? <Radio options={question.input.options} /> : ''
       }
-      {
-        question.errorMessage.isShow ? <QuestionErrorMessage>{question.errorMessage.content}</QuestionErrorMessage> : ''
-      }
+      { errorMessages[index] && <ErrorMessage>{errorMessages[index]}</ErrorMessage>}
     </QuestionWrapper>
   )
 }
@@ -142,8 +143,12 @@ const SubmitButton = styled.button`
   line-height: 40px;
   width: 92px;
   text-align: center;
-  font-size: 15px;
+  font-size: 14px;
   cursor: pointer;
+  
+  &:focus {
+    outline: none;
+  }
 `
 
 const Warning = styled.h4`
@@ -152,9 +157,12 @@ const Warning = styled.h4`
 `
 
 function Form({
-  questions,
-  handleInput,
-  handleSubmit
+  answers,
+  questionList,
+  handleInputChange,
+  handleRadioClick,
+  handleSubmit,
+  errorMessages
 }) {
   return (
     <OutterWrapper>
@@ -163,17 +171,28 @@ function Form({
           <FormHeader />
           <FormQuestions >
             {
-              questions.map((question, index) => {
-                return <Question key={index} question={question} handleInput={(e) => {
-                  handleInput(e, question.title)
-                }} />
+              questionList.map((question, index) => {
+                return (
+                  <HandlerContext.Provider
+                    key={index}
+                    value={[
+                      handleInputChange,
+                      handleRadioClick,
+                      index,
+                      errorMessages
+                    ]}>
+                    <Question
+                      key={index}
+                      question={question}
+                      answers={answers}
+                    />
+                  </HandlerContext.Provider>
+                )
               })
             }
           </FormQuestions>
           <Warning>請勿透過表單送出您的密碼。</Warning>
-          <SubmitButton type='submit' onClick={(e) => {
-            handleSubmit(e)
-          }}>提交</SubmitButton>
+          <SubmitButton type="submit" onClick={handleSubmit}>提交</SubmitButton>
         </FormWrapper>
       </FormBody>
     </OutterWrapper>
